@@ -2,8 +2,8 @@
 #include "libwifi.h"
 #include <WiFi.h>
  
-const char * ssid = "virus";
-const char * password = "a1b2c3d4";
+const char * ssid = "lsgo";
+const char * password = "1234abcd";
 const int puerto = 80;
 WiFiServer servidor(puerto);  // Construimos un objeto de tipo servidor TCP
 
@@ -38,6 +38,7 @@ void loop() {
         Serial.print(letra);
         if(letra == '\n'){  // Si el caracter es un enter (\n\r: 0x10 y 0x13)
           //PASO 6: Devolvemos una respuesta (response) HTTP
+          if (mensaje.length()==0){
           cliente.println("HTTP/1.1 200 OK");
           cliente.println("Content-type:text/html");
           cliente.println();  //Enviamos una linea vacia indica al protocolo HTTP que la cabecera finalizo  
@@ -45,14 +46,26 @@ void loop() {
           cliente.println("Haga clic  <a href=\"/L\">aqui</a> para apagar el LED");
           cliente.println();  //Finalizamos el envio del cuerpo (body) de la pagina
           break;
-        } else {
-          if (letra != '\r')
+        }
+         else {
+            mensaje="";
+        }
+         } else if (letra != '\r'){
              mensaje+=letra;  //PASO 5: Concatenamos cada caracter que esta llegando en mensaje
         }
+            if (mensaje.endsWith("GET /H")){
+              digitalWrite(2, HIGH);
+              Serial.println("Voy a encender el led");
+            }
+            else if (mensaje.endsWith("GET /L")){
+              digitalWrite(2, LOW);
+                Serial.println("Voy a apagar el led");
+            }
        }
 
     }
-
+    Serial.println("Cerrando conexion");
+    cliente.stop();
 
   }
 
